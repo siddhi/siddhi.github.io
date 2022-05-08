@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <script defer src="https://pyscript.net/alpha/pyscript.js"></script>
+<style>
+.hidden {
+    display: none;
+}
+#grid {
+    display: grid;
+    gap: 15px;
+    margin: 0 0 50px 0;
+    width: 100px;
+}
+#pos-1 {
+    grid-column: 1 / span 1;
+    grid-row: 1 / span 1;
+}
+#pos-2 {
+    grid-column: 2 / span 1;
+    grid-row: 1 / span 1;
+}
+#pos-3 {
+    grid-column: 3 / span 1;
+    grid-row: 1 / span 1;
+}
+#pos-4 {
+    grid-column: 1 / span 1;
+    grid-row: 2 / span 1;
+}
+#pos-5 {
+    grid-column: 2 / span 1;
+    grid-row: 2 / span 1;
+}
+#pos-6 {
+    grid-column: 3 / span 1;
+    grid-row: 2 / span 1;
+}
+#pos-7 {
+    grid-column: 1 / span 1;
+    grid-row: 3 / span 1;
+}
+#pos-8 {
+    grid-column: 2 / span 1;
+    grid-row: 3 / span 1;
+}
+#pos-9 {
+    grid-column: 3 / span 1;
+    grid-row: 3 / span 1;
+}
+</style> 
+    </head>
+    <body>
+        <h1>Tic Tac Toe</h1>
+        <p>Demo by <a href="https://www.playfulpython.com">Playful Python</a>.</p>
+        <p>One really nice way to learn programming is by writing small games.
+        Unfortunately, python has not had a nice way to do UI, you always needed to
+        use pygame or some other library. </p>
+        <p>This page shows a demo of tic tac toe running in the browser using python.
+        All the game logic is in python.</p>
+        <p>View source to see the source of this game.</p>
+        <p>This game does not require any backend server to run. (It does need internet access to download the pyscript.js file though).
+        Save this page to your computer and double click it to run it locally.</p>
+        <h3 id="message">Loading</h3>
+        <div id="tictactoe" class="hidden">
+          <div id="grid">
+            <div id="pos-1">
+                <span id="pos-1-x" class="hidden">X</span>
+                <span id="pos-1-o" class="hidden">O</span>
+                <span id="pos-1-none" class="hidden"><button id="pos-1-button" pys-onClick="lambda e: turn(1)">1</button></span>
+            </div>
+            <div id="pos-2">
+                <span id="pos-2-x" class="hidden">X</span>
+                <span id="pos-2-o" class="hidden">O</span>
+                <span id="pos-2-none" class="hidden"><button id="pos-2-button" pys-onClick="lambda e: turn(2)">2</button></span>
+            </div>
+            <div id="pos-3">
+                <span id="pos-3-x" class="hidden">X</span>
+                <span id="pos-3-o" class="hidden">O</span>
+                <span id="pos-3-none" class="hidden"><button id="pos-3-button" pys-onClick="lambda e: turn(3)">3</button></span>
+            </div>
+            <div id="pos-4">
+                <span id="pos-4-x" class="hidden">X</span>
+                <span id="pos-4-o" class="hidden">O</span>
+                <span id="pos-4-none" class="hidden"><button id="pos-4-button" pys-onClick="lambda e: turn(4)">4</button></span>
+            </div>
+            <div id="pos-5">
+                <span id="pos-5-x" class="hidden">X</span>
+                <span id="pos-5-o" class="hidden">O</span>
+                <span id="pos-5-none" class="hidden"><button id="pos-5-button" pys-onClick="lambda e: turn(5)">5</button></span>
+            </div>
+            <div id="pos-6">
+                <span id="pos-6-x" class="hidden">X</span>
+                <span id="pos-6-o" class="hidden">O</span>
+                <span id="pos-6-none" class="hidden"><button id="pos-6-button" pys-onClick="lambda e: turn(6)">6</button></span>
+            </div>
+            <div id="pos-7">
+                <span id="pos-7-x" class="hidden">X</span>
+                <span id="pos-7-o" class="hidden">O</span>
+                <span id="pos-7-none" class="hidden"><button id="pos-7-button" pys-onClick="lambda e: turn(7)">7</button></span>
+            </div>
+            <div id="pos-8">
+                <span id="pos-8-x" class="hidden">X</span>
+                <span id="pos-8-o" class="hidden">O</span>
+                <span id="pos-8-none" class="hidden"><button id="pos-8-button" pys-onClick="lambda e: turn(8)">8</button></span>
+            </div>
+            <div id="pos-9">
+                <span id="pos-9-x" class="hidden">X</span>
+                <span id="pos-9-o" class="hidden">O</span>
+                <span id="pos-9-none" class="hidden"><button id="pos-9-button" pys-onClick="lambda e: turn(9)">9</button></span>
+            </div>
+          </div> 
+          <button id="reset" pys-onClick="reset">Reset</button>
+        </div>
+
+<py-script>
+#########################################
+# UI STUFF
+#########################################
+
+class Message:
+    def __set__(self, obj, value):
+        Element("message").write(value)
+
+class Positions:
+    def __get__(self, obj, objtype):
+        return self.values
+
+    def __set__(self, obj, values):
+        self.values = values
+        for i, value in enumerate(values, start=1):
+            Element(f"pos-{i}-x").add_class("hidden")
+            Element(f"pos-{i}-o").add_class("hidden")
+            Element(f"pos-{i}-none").add_class("hidden")
+            if value == 0:
+                Element(f"pos-{i}-x").remove_class("hidden")
+            elif value == 1:
+                Element(f"pos-{i}-o").remove_class("hidden")
+            else:
+                Element(f"pos-{i}-none").remove_class("hidden")
+
+class Loaded:
+    def __set__(self, obj, value):
+        if value:
+            Element("tictactoe").remove_class("hidden")
+        else:
+            Element("ticatactoe").add_class("hidden")
+
+def reset(e):
+    game.start()
+
+def turn(n):
+    game.play_turn(n)
+        
+#########################################
+# TICTACTOE GAME
+#########################################
+            
+class TicTacToe:
+    message = Message()
+    positions = Positions()
+    loaded = Loaded()
+
+    def start(self):
+        self.message = "X Turn"
+        self.player = 0
+        self.loaded = True
+        self.positions = (None, ) * 9
+        self.game_running = True
+
+    def play_turn(self, position):
+        if not self.game_running:
+            return
+        index = position - 1
+        if self.positions[index] != None:
+            self.message = "Invalid position"
+            return
+
+        new_positions = self.positions[:index] + (self.player,) + self.positions[index+1:]
+        self.positions = new_positions
+        if not self.check_winner():
+            self.next_player()
+
+    def next_player(self):
+        player_messages = ["X Turn", "O Turn"]
+        self.player = (self.player + 1) % 2
+        self.message = player_messages[self.player]
+
+    def check_winner(self):
+        win_patterns = [(0, 1, 2), (3, 4, 5), (6, 7, 8), (0, 3, 6), (1, 4, 7), (2, 5, 8), (0, 4, 8), (2, 4, 6)]
+        win_messages = ["X Wins", "O Wins"]
+        for first, second, third in win_patterns:
+            if self.positions[first] == self.positions[second] == self.positions[third] == self.player:
+                self.message = win_messages[self.player]
+                self.game_running = False
+                return True
+        if self.check_draw():
+            self.message = "Draw"
+            self.game_running = False
+            return True
+        return False
+
+    def check_draw(self):
+        for val in self.positions:
+            if val == None:
+                return False
+        return True
+
+game = TicTacToe()
+game.start()
+
+</py-script>
+        </body>
+</html>
